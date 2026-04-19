@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 # =====================
 # 数据库配置（SQLite）
 # =====================
-DATABASE_URL = "sqlite:///./events.db"
+DATABASE_URL = "sqlite:///events.db"
 
 engine = create_engine(
     DATABASE_URL,
@@ -31,6 +31,7 @@ class EventDB(Base):
     event_type = Column(String)
     timestamp = Column(String)
 
+# 创建表
 Base.metadata.create_all(bind=engine)
 
 # =====================
@@ -62,26 +63,30 @@ def home():
 def receive_event(event: Event):
     db = SessionLocal()
 
+    # ✅ 先生成时间（关键）
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     data = EventDB(
         user_id=event.user_id,
         device_id=event.device_id,
         device_type=event.device_type,
         power=event.power,
         event_type=event.event_type,
-        timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp=timestamp
     )
 
     db.add(data)
     db.commit()
     db.close()
 
+    # ✅ 用变量，不用 data.timestamp
     print(f"""
 📥 新事件：
 用户: {event.user_id}
 设备: {event.device_type}
 状态: {event.event_type}
 功率: {event.power} W
-时间: {data.timestamp}
+时间: {timestamp}
 """)
 
     return {"status": "ok"}
