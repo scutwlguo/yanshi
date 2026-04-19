@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 # =====================
 # 数据库配置（SQLite）
 # =====================
-DATABASE_URL = "postgresql://postgres:202420114127%40Gwl@db.mguswzuthqoxammghqsk.supabase.co:5432/postgres"
+DATABASE_URL = "postgresql://postgres.mguswzuthqoxammghqsk:202420114127%40Gwl@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
 
 engine = create_engine(DATABASE_URL)
 
