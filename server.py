@@ -7,12 +7,9 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 # =====================
 # 数据库配置（SQLite）
 # =====================
-DATABASE_URL = "sqlite:///events.db"
+DATABASE_URL = "postgresql://postgres:202420114127@Gwl@db.xxx.supabase.co:5432/postgres"
 
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False}
-)
+engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
@@ -31,8 +28,6 @@ class EventDB(Base):
     event_type = Column(String)
     timestamp = Column(String)
 
-# 创建表
-Base.metadata.create_all(bind=engine)
 
 # =====================
 # FastAPI

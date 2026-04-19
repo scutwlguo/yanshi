@@ -7,7 +7,7 @@ while True:
     data = {
         "user_id": "user1",
         "device_id": "plug_01",
-        "power": 1200,
+        "power": -1200,
         "device_type": "空调",
         "event_type": "on"
     }
