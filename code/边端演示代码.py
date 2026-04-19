@@ -1,10 +1,10 @@
 import requests
 import time
 import random
-from datetime import datetime
 
-# 改成你的云端IP
-url = "http://192.168.1.5:8000/event"
+url = "https://你的地址.up.railway.app/event"
+
+users = ["user1", "user2"]
 
 devices = [
     {"type": "空调", "power_range": (800, 1500)},
@@ -16,16 +16,14 @@ while True:
     device = random.choice(devices)
 
     data = {
+        "user_id": random.choice(users),
         "device_id": "plug_01",
         "power": random.randint(*device["power_range"]),
         "device_type": device["type"],
         "event_type": random.choice(["on", "off"])
     }
 
-    try:
-        r = requests.post(url, json=data)
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] 已发送:", data)
-    except Exception as e:
-        print("发送失败：", e)
+    r = requests.post(url, json=data)
+    print("发送：", data)
 
-    time.sleep(3)  # 每3秒发一次
+    time.sleep(3)
