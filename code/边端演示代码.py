@@ -13,6 +13,7 @@ while True:
     }
 
     res = requests.post(url, json=data)
-    print(res.json())
+    print("状态码:", res.status_code)
+    print("返回内容:", res.text)
 
     time.sleep(5)  # 每5秒发送一次
