@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import create_engine, Column, Integer, String, Float
 from sqlalchemy.orm import sessionmaker, declarative_base
 
@@ -64,7 +64,7 @@ def receive_event(event: Event):
     db = SessionLocal()
 
     # ✅ 先生成时间（关键）
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = (datetime.utcnow() + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
 
     data = EventDB(
         user_id=event.user_id,
@@ -136,21 +136,56 @@ def get_user_events_by_date(user_id: str, date: str):
 
 from fastapi.responses import HTMLResponse
 
-@app.get("/dashboard/{user_id}", response_class=HTMLResponse)
-def dashboard(user_id: str):
-    return f"""
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard():
+    return """
     <html>
     <head>
-        <title>用电数据看板</title>
+        <title>用电数据管理平台</title>
         <style>
-            body {{ font-family: Arial; text-align: center; }}
-            table {{ border-collapse: collapse; margin: auto; width: 80%; }}
-            th, td {{ border: 1px solid #ddd; padding: 10px; }}
-            th {{ background-color: #4CAF50; color: white; }}
+            body {
+                font-family: Arial;
+                background-color: #f5f7fa;
+                text-align: center;
+            }
+            h2 {
+                margin-top: 20px;
+            }
+            select {
+                padding: 8px;
+                margin: 10px;
+                font-size: 16px;
+            }
+            table {
+                border-collapse: collapse;
+                margin: auto;
+                width: 80%;
+                background: white;
+                box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 10px;
+            }
+            th {
+                background-color: #4CAF50;
+                color: white;
+            }
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
         </style>
     </head>
     <body>
-        <h2>用户 {user_id} 用电数据</h2>
+
+        <h2>🔌 用电数据可视化平台</h2>
+
+        <label>选择用户：</label>
+        <select id="user-select">
+            <option value="user1">user1</option>
+            <option value="user2">user2</option>
+        </select>
+
         <table id="data-table">
             <thead>
                 <tr>
@@ -164,30 +199,33 @@ def dashboard(user_id: str):
         </table>
 
         <script>
-            async function loadData() {{
-                const res = await fetch('/events/{user_id}');
+            async function loadData() {
+                const user = document.getElementById("user-select").value;
+                const res = await fetch(`/events/${user}`);
                 const data = await res.json();
 
                 const tbody = document.querySelector("#data-table tbody");
                 tbody.innerHTML = "";
 
-                data.reverse().forEach(item => {{
+                data.reverse().forEach(item => {
                     const row = `
                         <tr>
-                            <td>${{item.device}}</td>
-                            <td>${{item.event}}</td>
-                            <td>${{item.power}}</td>
-                            <td>${{item.time}}</td>
+                            <td>${item.device}</td>
+                            <td>${item.event}</td>
+                            <td>${item.power}</td>
+                            <td>${item.time}</td>
                         </tr>
                     `;
                     tbody.innerHTML += row;
-                }});
-            }}
+                });
+            }
 
-            // 每2秒刷新
+            document.getElementById("user-select").addEventListener("change", loadData);
+
             setInterval(loadData, 2000);
             loadData();
         </script>
+
     </body>
     </html>
     """
