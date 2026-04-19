@@ -1,29 +1,18 @@
 import requests
 import time
-import random
 
-url = "https://你的地址.up.railway.app/event"
-
-users = ["user1", "user2"]
-
-devices = [
-    {"type": "空调", "power_range": (800, 1500)},
-    {"type": "热水器", "power_range": (1500, 3000)},
-    {"type": "电饭煲", "power_range": (500, 800)}
-]
+url = "https://web-production-86eb0.up.railway.app/event"
 
 while True:
-    device = random.choice(devices)
-
     data = {
-        "user_id": random.choice(users),
+        "user_id": "user1",
         "device_id": "plug_01",
-        "power": random.randint(*device["power_range"]),
-        "device_type": device["type"],
-        "event_type": random.choice(["on", "off"])
+        "power": 1200,
+        "device_type": "空调",
+        "event_type": "on"
     }
 
-    r = requests.post(url, json=data)
-    print("发送：", data)
+    res = requests.post(url, json=data)
+    print(res.json())
 
-    time.sleep(3)
+    time.sleep(5)  # 每5秒发送一次
