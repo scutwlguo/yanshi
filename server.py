@@ -133,3 +133,61 @@ def get_user_events_by_date(user_id: str, date: str):
         }
         for i in data
     ]
+
+from fastapi.responses import HTMLResponse
+
+@app.get("/dashboard/{user_id}", response_class=HTMLResponse)
+def dashboard(user_id: str):
+    return f"""
+    <html>
+    <head>
+        <title>用电数据看板</title>
+        <style>
+            body {{ font-family: Arial; text-align: center; }}
+            table {{ border-collapse: collapse; margin: auto; width: 80%; }}
+            th, td {{ border: 1px solid #ddd; padding: 10px; }}
+            th {{ background-color: #4CAF50; color: white; }}
+        </style>
+    </head>
+    <body>
+        <h2>用户 {user_id} 用电数据</h2>
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>设备</th>
+                    <th>状态</th>
+                    <th>功率(W)</th>
+                    <th>时间</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <script>
+            async function loadData() {{
+                const res = await fetch('/events/{user_id}');
+                const data = await res.json();
+
+                const tbody = document.querySelector("#data-table tbody");
+                tbody.innerHTML = "";
+
+                data.reverse().forEach(item => {{
+                    const row = `
+                        <tr>
+                            <td>${{item.device}}</td>
+                            <td>${{item.event}}</td>
+                            <td>${{item.power}}</td>
+                            <td>${{item.time}}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                }});
+            }}
+
+            // 每2秒刷新
+            setInterval(loadData, 2000);
+            loadData();
+        </script>
+    </body>
+    </html>
+    """
